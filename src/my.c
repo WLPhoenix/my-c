@@ -40,7 +40,7 @@ strToLower(char *str)
 }
 
 void
-copy(const char * f1,const char * f2)
+fcopy(const char * f1,const char * f2)
 {
    FILE * toRead;
    FILE * toWrite;
