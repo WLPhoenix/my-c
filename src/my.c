@@ -12,6 +12,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/stat.h>
+#include <errno.h>
+
 typedef enum MyType {
   GROUP,
   COMMAND,
@@ -22,15 +25,56 @@ typedef enum MyType {
   INVALID
 };
 
+const int MAX_PATH = 1023;
+
 /***********************
         Utility
  **********************/
 void
-strToLower(char *str) {
-  for( int i = 0; str[i]; i++) {
+strToLower(char *str) 
+{
+  for( int i = 0; str[i]; i++) 
+  {
     str[i] = tolower(str[i]);
   }
 }
+
+void
+fCopy(const char * f1,const char * f2)
+{
+   FILE * toRead;
+   FILE * toWrite;
+   toRead = fopen(f1, "rb" );
+   toWrite = fopen(f2, "wb" );
+   while(1)
+   {
+    char stream[1];
+    fread(stream,1,1,toRead);
+    if(stream[1] == EOF)
+    {
+      break;
+    }
+    else
+    {
+      fwrite(stream,1,1,toWrite);
+    }
+   }
+   fclose(toRead);
+   fclose(toWrite);
+}
+
+char*
+strAppend(const char *st1, int lmax1, const char *st2, int lmax2)
+{
+  int len1 = strlen(st1);
+  int len2 = strlen(st2);
+  len1 = (len1 < lmax1) ? len1 : lmax1;
+  len2 = (len2 < lmax2) ? len2 : lmax2;
+  char new[len1 + len2];
+  strncpy( new, st1, len1 );
+  strncpy(new + len1*sizeof(char), st2, len2 );
+}
+
 
 /***********************
         Meta
@@ -45,13 +89,18 @@ print_help()
 int
 setup_home()
 {
-  myhome = secure_getenv("MY_HOME");
-  if(NULL == myhome)
+  if(NULL == getenv("MY_HOME"))
   {
-    myhome = secure_getenv("HOME") + "/.my";
-    setenv("MY_HOME", myhome);
+    char* home = getenv("HOME");
+    int len = strlen(home);
+    char new_myhome[len + 4];
+    strcat( strcpy( new_myhome, home ), "/.my" );
+    setenv("MY_HOME", new_myhome, 0);
   }
-  return mkdir(myhome);
+  if( mkdir( getenv("MY_HOME"), S_IRWXU ) == -1 )
+  {
+    return errno==EEXIST;
+  }
 }
 
 /***********************
@@ -59,22 +108,25 @@ setup_home()
  **********************/
 int
 list_groups() 
-{ }
+{
+  const char* myhome = getenv("MY_HOME");
+  FILE *fp = fopen( strAppend( myhome, strlen(myhome), "groups", 6), "rm" );
+}
 
 int 
-create_group(*char name) 
+create_group(char* name) 
 { }
 
 int
-echo_group(*char name)
+echo_group(char* name)
 { }
 
 int
-drop_group(*char name)
+drop_group(char* name)
 { }
 
 int
-edit_group(*char name)
+edit_group(char* name)
 { }
 
 /***********************
@@ -85,19 +137,19 @@ list_notes()
 { }
 
 int 
-create_note(*char name) 
+create_note(const char * name, const  char * content) 
 { }
 
 int
-echo_note(*char name)
+echo_note(char* name)
 { }
 
 int
-drop_note(*char name)
+drop_note(char* name)
 { }
 
 int
-edit_note(*char name)
+edit_note(char* name)
 { }
 
 /***********************
@@ -108,19 +160,19 @@ list_commands()
 { }
 
 int 
-create_command(*char name) 
+create_command(char* name) 
 { }
 
 int
-echo_command(*char name)
+echo_command(char* name)
 { }
 
 int
-drop_command(*char name)
+drop_command(char* name)
 { }
 
 int
-edit_command(*char name)
+edit_command(char* name)
 { }
 
 /***********************
@@ -131,19 +183,19 @@ list_templates()
 { }
 
 int 
-create_template(*char name) 
+create_template(char* name) 
 { }
 
 int
-echo_template(*char name)
+echo_template(char* name)
 { }
 
 int
-drop_template(*char name)
+drop_template(char* name)
 { }
 
 int
-edit_template(*char name)
+edit_template(char* name)
 { }
 
 /***********************
@@ -154,19 +206,19 @@ list_macros()
 { }
 
 int 
-create_macro(*char name) 
+create_macro(char* name) 
 { }
 
 int
-echo_macro(*char name)
+echo_macro(char* name)
 { }
 
 int
-drop_macro(*char name)
+drop_macro(char* name)
 { }
 
 int
-edit_macro(*char name)
+edit_macro(char* name)
 { }
 
 /***********************
