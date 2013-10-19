@@ -103,6 +103,7 @@ list_groups()
   strcat( strcpy( filename, myhome ), "groups" );
 
   FILE *fp = fopen( filename, "rm" );
+  fprintf("%s", fp);
 
 }
 
