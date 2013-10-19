@@ -1,0 +1,18 @@
+$MY_HOME="$HOME/.my"			The default MY_HOME directory
+
+$MY_HOME/groups				A list of all groups
+$MY_HOME/<group>/			A directory to store info about all mytems in a group
+$MY_HOME/<group>/.list			A list of all mytems under a group
+
+# Note mytems
+$MY_HOME/<group>/N.<label>		A note stored directly as text in a file
+
+# Command mytems
+$MY_HOME/<group>/C.<label>		A command stored directly as text in a file
+
+# Template mytems
+$MY_HOME/<group>/T.<label>		A map of the directories and files to be created by the template
+$MY_HOME/<group>/T.<label>.<UID>	An instance of a file to be created by a given template
+
+# Macro mytems
+$MY_HOME/<group>/M.<label>		A list of my commands to be executed in sequence
