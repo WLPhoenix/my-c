@@ -32,6 +32,30 @@ strToLower(char *str) {
   }
 }
 
+void
+copy(const char * f1,const char * f2)
+{
+   FILE * toRead;
+   FILE * toWrite;
+   toRead = fopen(f1,rb);
+   toWrite = fopen(f2,wb);
+   while(1)
+   {
+    byte stream[1];
+    fread(stream,1,1,toRead);
+    if(stream[1] == EOF)
+    {
+      break;
+    }
+    else
+    {
+      fwrite(stream,1,1,toWrite);
+    }
+   }
+   fclose(toRead);
+   fclose(toWrite);
+}
+
 /***********************
         Meta
  **********************/
