@@ -2,4 +2,7 @@
 
 CONTEXT="`dirname $0`"
 rm -r $CONTEXT/bin 2>/dev/null && mkdir $CONTEXT/bin
-gcc -std=c99 -pedantic-errors -o $CONTEXT/bin/my $CONTEXT/src/my.c
+gcc -std=c99 -pedantic-errors \
+  -D_GNU_SOURCE \
+  -D__USE_GNU \
+  -o $CONTEXT/bin/my $CONTEXT/src/my.c

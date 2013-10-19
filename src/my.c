@@ -48,7 +48,7 @@ fCopy(const char * f1,const char * f2)
    toWrite = fopen(f2, "wb" );
    while(1)
    {
-    byte stream[1];
+    char stream[1];
     fread(stream,1,1,toRead);
     if(stream[1] == EOF)
     {
@@ -64,13 +64,15 @@ fCopy(const char * f1,const char * f2)
 }
 
 char*
-strAppend(const char *st1, const char *st2)
+strAppend(const char *st1, int lmax1, const char *st2, int lmax2)
 {
-  int l1 = strnlen(st1);
-  int l2 = strnlen(st2);
-  char new[l1 + l2];
-  strncpy( new, st1 );
-  strncpy(*new[l1], st2 );
+  int len1 = strlen(st1);
+  int len2 = strlen(st2);
+  len1 = (len1 < lmax1) ? len1 : lmax1;
+  len2 = (len2 < lmax2) ? len2 : lmax2;
+  char new[len1 + len2];
+  strncpy( new, st1, len1 );
+  strncpy(new + len1*sizeof(char), st2, len2 );
 }
 
 
@@ -107,7 +109,8 @@ setup_home()
 int
 list_groups() 
 {
-  FILE *fp = fopen( strAppend( getenv("MY_HOME"), "groups") );
+  const char* myhome = getenv("MY_HOME");
+  FILE *fp = fopen( strAppend( myhome, strlen(myhome), "groups", 6), "rm" );
 }
 
 int 
@@ -161,7 +164,7 @@ create_command(char* name)
 { }
 
 int
-echo_command(char(* name)
+echo_command(char* name)
 { }
 
 int
