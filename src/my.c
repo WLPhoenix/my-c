@@ -73,6 +73,8 @@ print_help()
   printf("TODO: Write print_help\n");
 }
 
+int 
+
 int
 setup_home()
 {
@@ -103,7 +105,9 @@ list_groups()
   strcat( strcpy( filename, myhome ), "groups" );
 
   FILE *fp = fopen( filename, "rm" );
-  fprintf("%s", fp);
+  char * out;
+  fscanf(fp,%s,out);
+  printf("%s", out);
 
 }
 
