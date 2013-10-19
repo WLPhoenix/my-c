@@ -1,7 +1,9 @@
 #!/bin/bash
 
 CONTEXT="`dirname $0`"
-rm -r $CONTEXT/bin 2>/dev/null && mkdir $CONTEXT/bin
+echo $CONTEXT;
+rm -r $CONTEXT/bin;
+mkdir $CONTEXT/bin;
 gcc -std=c99 -pedantic-errors \
   -D_GNU_SOURCE \
   -D__USE_GNU \

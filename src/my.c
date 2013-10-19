@@ -100,11 +100,14 @@ list_groups()
 
   int len = strlen(myhome);
   char filename[len + 6];
-  strcat( strcpy( filename, myhome ), "groups" );
-
+  strcat( strcpy( filename, myhome ), "/groups" );
   FILE *fp = fopen( filename, "rm" );
-  fprintf("%s", fp);
-
+  if (NULL != fp) {
+    int stream;
+    while((stream = getc(fp)) != EOF) {
+      putchar(stream);
+    }
+  }
 }
 
 int 
@@ -221,29 +224,8 @@ edit_macro(char* name)
 int
 main(int argc, char *argv[])
 {
-  /*
-  if (1 == argc)
-  {
-    print_help();
-  }
-  else
-  {
-    setup_folders();
-    enum MyType type = find_type(argv[1]);
-    if (GROUP_CALL == type)
-    {
-      printf("TODO: Implement actions for GROUP_CALL\n");
-    }
-    else if (INVALID != type)
-    {
-      printf("I know what to do here!\n");
-    }
-    else
-    {
-      printf("Invalid type or group.\n");
-    } 
-  }
-  */
+  setup_home();
+  list_groups();
   return 0;
 }
 
