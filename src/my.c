@@ -15,16 +15,6 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-typedef enum MyType {
-  GROUP,
-  COMMAND,
-  TEMPLATE,
-  MACRO,
-  NOTE,
-  GROUP_CALL,
-  INVALID
-};
-
 const int MAX_PATH = 1023;
 
 /***********************
@@ -75,8 +65,6 @@ print_help()
   printf("TODO: Write print_help\n");
 }
 
-int 
-
 int
 setup_home()
 {
@@ -103,20 +91,50 @@ list_groups()
   const char* myhome = getenv("MY_HOME");
 
   int len = strlen(myhome);
-  char filename[len + 6];
-  strcat( strcpy( filename, myhome ), "groups" );
-
+  char filename[len + 7];
+  strcat( strcpy( filename, myhome ), "/groups" );
   FILE *fp = fopen( filename, "rm" );
-  char * out;
-  fscanf(fp,%s,out);
-  printf("%s", out);
-
+  if (NULL != fp) {
+    int stream;
+    while((stream = getc(fp)) != EOF) {
+      putchar(stream);
+    }
+  }
 }
 
 int 
+<<<<<<< HEAD
 create_group(char* name) 
 {
    
+=======
+create_group(const char* name) 
+{ 
+  const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+
+  char filename[homelen + namelen + 1];
+  char groupfile[homelen + 7];
+  
+  strcat( strcat( strcpy( filename, myhome ), "/"), name  );
+  strcat( strcpy( groupfile, myhome ), "/groups" );
+
+  puts(filename);
+  puts(groupfile);
+
+  FILE *fp = fopen( filename, "a" );
+  if (NULL != fp) {
+    fputs( name, fp );
+    fflush( fp );
+  }
+  fclose( fp );
+
+  if( mkdir( filename, S_IRWXU ) == -1 )
+  {
+    return errno==EEXIST;
+  }
+>>>>>>> 109af3123635c577f5d7f7404868053d29f5989c
 }
 
 int
@@ -231,29 +249,10 @@ edit_macro(char* name)
 int
 main(int argc, char *argv[])
 {
-  /*
-  if (1 == argc)
-  {
-    print_help();
-  }
-  else
-  {
-    setup_folders();
-    enum MyType type = find_type(argv[1]);
-    if (GROUP_CALL == type)
-    {
-      printf("TODO: Implement actions for GROUP_CALL\n");
-    }
-    else if (INVALID != type)
-    {
-      printf("I know what to do here!\n");
-    }
-    else
-    {
-      printf("Invalid type or group.\n");
-    } 
-  }
-  */
+  setup_home();
+  list_groups();
+  create_group("booze");
+  list_groups();
   return 0;
 }
 
