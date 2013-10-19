@@ -39,6 +39,8 @@ strToLower(char *str)
   }
 }
 
+
+
 void
 fCopy(const char * f1,const char * f2)
 {
@@ -113,7 +115,9 @@ list_groups()
 
 int 
 create_group(char* name) 
-{ }
+{
+   
+}
 
 int
 echo_group(char* name)
@@ -131,19 +135,21 @@ edit_group(char* name)
         Notes
  **********************/
 int
-list_notes() 
+list_notes(const char * group) 
 { }
 
 int 
-create_note(const char * name, const  char * content) 
+create_note(const char * group, const char * name, const  char * content) 
+{ 
+  
+}
+
+int
+echo_note(const char * group, const char* name)
 { }
 
 int
-echo_note(char* name)
-{ }
-
-int
-drop_note(char* name)
+drop_note(const char * group, const char* name)
 { }
 
 int
