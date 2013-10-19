@@ -72,6 +72,7 @@ append(char *st1, char *st2)
   strncat( strncpy( new, l1 ), l2 );
 }
 
+
 /***********************
         Meta
  **********************/
@@ -133,7 +134,7 @@ list_notes()
 { }
 
 int 
-create_note(*char name) 
+create_note(const char * name, const  char * content) 
 { }
 
 int
