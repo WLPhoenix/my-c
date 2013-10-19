@@ -73,6 +73,8 @@ print_help()
   printf("TODO: Write print_help\n");
 }
 
+int 
+
 int
 setup_home()
 {
