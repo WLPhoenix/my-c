@@ -40,7 +40,7 @@ strToLower(char *str)
 }
 
 void
-fcopy(const char * f1,const char * f2)
+fCopy(const char * f1,const char * f2)
 {
    FILE * toRead;
    FILE * toWrite;
@@ -64,12 +64,13 @@ fcopy(const char * f1,const char * f2)
 }
 
 char*
-append(char *st1, char *st2)
+strAppend(char *st1, char *st2)
 {
-  int l1 = strlen(st1);
-  int l2 = strlen(st2);
+  int l1 = strnlen(st1);
+  int l2 = strnlen(st2);
   char new[l1 + l2];
-  strncat( strncpy( new, l1 ), l2 );
+  strncpy( new, st1 );
+  strncpy(*new[l1], st2 );
 }
 
 
@@ -111,19 +112,19 @@ list_groups()
 }
 
 int 
-create_group(*char name) 
+create_group(char* name) 
 { }
 
 int
-echo_group(*char name)
+echo_group(char* name)
 { }
 
 int
-drop_group(*char name)
+drop_group(char* name)
 { }
 
 int
-edit_group(*char name)
+edit_group(char* name)
 { }
 
 /***********************
