@@ -12,6 +12,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/stat.h>
+#include <errno.h>
+
 typedef enum MyType {
   GROUP,
   COMMAND,
@@ -21,6 +24,8 @@ typedef enum MyType {
   GROUP_CALL,
   INVALID
 };
+
+const int MAX_PATH = 1023;
 
 /***********************
         Utility
@@ -45,13 +50,18 @@ print_help()
 int
 setup_home()
 {
-  myhome = secure_getenv("MY_HOME");
-  if(NULL == myhome)
+  if(NULL == getenv("MY_HOME"))
   {
-    myhome = secure_getenv("HOME") + "/.my";
-    setenv("MY_HOME", myhome);
+    char* home = getenv("HOME");
+    int len = strlen(home);
+    char new_myhome[len + 4];
+    strcat( strcpy( new_myhome, home ), "/.my" );
+    setenv("MY_HOME", new_myhome, 0);
   }
-  return mkdir(myhome);
+  if( mkdir( getenv("MY_HOME"), S_IRWXU ) == -1 )
+  {
+    return errno==EEXIST;
+  }
 }
 
 /***********************
@@ -59,7 +69,10 @@ setup_home()
  **********************/
 int
 list_groups() 
-{ }
+{
+  //*char myhome = 
+  //  FILE *fp = fopen(
+}
 
 int 
 create_group(*char name) 
