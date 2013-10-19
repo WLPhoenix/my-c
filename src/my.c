@@ -15,16 +15,6 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-typedef enum MyType {
-  GROUP,
-  COMMAND,
-  TEMPLATE,
-  MACRO,
-  NOTE,
-  GROUP_CALL,
-  INVALID
-};
-
 const int MAX_PATH = 1023;
 
 /***********************
@@ -73,8 +63,6 @@ print_help()
   printf("TODO: Write print_help\n");
 }
 
-int 
-
 int
 setup_home()
 {
@@ -101,7 +89,7 @@ list_groups()
   const char* myhome = getenv("MY_HOME");
 
   int len = strlen(myhome);
-  char filename[len + 6];
+  char filename[len + 7];
   strcat( strcpy( filename, myhome ), "/groups" );
   FILE *fp = fopen( filename, "rm" );
   if (NULL != fp) {
@@ -113,8 +101,33 @@ list_groups()
 }
 
 int 
-create_group(char* name) 
-{ }
+create_group(const char* name) 
+{ 
+  const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+
+  char filename[homelen + namelen + 1];
+  char groupfile[homelen + 7];
+  
+  strcat( strcat( strcpy( filename, myhome ), "/"), name  );
+  strcat( strcpy( groupfile, myhome ), "/groups" );
+
+  puts(filename);
+  puts(groupfile);
+
+  FILE *fp = fopen( filename, "a" );
+  if (NULL != fp) {
+    fputs( name, fp );
+    fflush( fp );
+  }
+  fclose( fp );
+
+  if( mkdir( filename, S_IRWXU ) == -1 )
+  {
+    return errno==EEXIST;
+  }
+}
 
 int
 echo_group(char* name)
@@ -227,6 +240,8 @@ int
 main(int argc, char *argv[])
 {
   setup_home();
+  list_groups();
+  create_group("booze");
   list_groups();
   return 0;
 }
