@@ -63,19 +63,6 @@ fCopy(const char * f1,const char * f2)
    fclose(toWrite);
 }
 
-char*
-strAppend(const char *st1, int lmax1, const char *st2, int lmax2)
-{
-  int len1 = strlen(st1);
-  int len2 = strlen(st2);
-  len1 = (len1 < lmax1) ? len1 : lmax1;
-  len2 = (len2 < lmax2) ? len2 : lmax2;
-  char new[len1 + len2];
-  strncpy( new, st1, len1 );
-  strncpy(new + len1*sizeof(char), st2, len2 );
-}
-
-
 /***********************
         Meta
  **********************/
@@ -110,7 +97,13 @@ int
 list_groups() 
 {
   const char* myhome = getenv("MY_HOME");
-  FILE *fp = fopen( strAppend( myhome, strlen(myhome), "groups", 6), "rm" );
+
+  int len = strlen(myhome);
+  char filename[len + 6];
+  strcat( strcpy( filename, myhome ), "groups" );
+
+  FILE *fp = fopen( filename, "rm" );
+
 }
 
 int 
@@ -227,6 +220,7 @@ edit_macro(char* name)
 int
 main(int argc, char *argv[])
 {
+  /*
   if (1 == argc)
   {
     print_help();
@@ -248,6 +242,7 @@ main(int argc, char *argv[])
       printf("Invalid type or group.\n");
     } 
   }
+  */
   return 0;
 }
 
