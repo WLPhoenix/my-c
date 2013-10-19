@@ -44,8 +44,8 @@ fCopy(const char * f1,const char * f2)
 {
    FILE * toRead;
    FILE * toWrite;
-   toRead = fopen(f1,rb);
-   toWrite = fopen(f2,wb);
+   toRead = fopen(f1, "rb" );
+   toWrite = fopen(f2, "wb" );
    while(1)
    {
     byte stream[1];
@@ -64,7 +64,7 @@ fCopy(const char * f1,const char * f2)
 }
 
 char*
-strAppend(char *st1, char *st2)
+strAppend(const char *st1, const char *st2)
 {
   int l1 = strnlen(st1);
   int l2 = strnlen(st2);
@@ -107,8 +107,7 @@ setup_home()
 int
 list_groups() 
 {
-  FILE *fp = fopen( getenv("MY_HOME") );
-  while(
+  FILE *fp = fopen( strAppend( getenv("MY_HOME"), "groups") );
 }
 
 int 
@@ -139,15 +138,15 @@ create_note(const char * name, const  char * content)
 { }
 
 int
-echo_note(*char name)
+echo_note(char* name)
 { }
 
 int
-drop_note(*char name)
+drop_note(char* name)
 { }
 
 int
-edit_note(*char name)
+edit_note(char* name)
 { }
 
 /***********************
@@ -158,19 +157,19 @@ list_commands()
 { }
 
 int 
-create_command(*char name) 
+create_command(char* name) 
 { }
 
 int
-echo_command(*char name)
+echo_command(char(* name)
 { }
 
 int
-drop_command(*char name)
+drop_command(char* name)
 { }
 
 int
-edit_command(*char name)
+edit_command(char* name)
 { }
 
 /***********************
@@ -181,19 +180,19 @@ list_templates()
 { }
 
 int 
-create_template(*char name) 
+create_template(char* name) 
 { }
 
 int
-echo_template(*char name)
+echo_template(char* name)
 { }
 
 int
-drop_template(*char name)
+drop_template(char* name)
 { }
 
 int
-edit_template(*char name)
+edit_template(char* name)
 { }
 
 /***********************
@@ -204,19 +203,19 @@ list_macros()
 { }
 
 int 
-create_macro(*char name) 
+create_macro(char* name) 
 { }
 
 int
-echo_macro(*char name)
+echo_macro(char* name)
 { }
 
 int
-drop_macro(*char name)
+drop_macro(char* name)
 { }
 
 int
-edit_macro(*char name)
+edit_macro(char* name)
 { }
 
 /***********************
