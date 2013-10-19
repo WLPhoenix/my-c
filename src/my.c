@@ -31,8 +31,10 @@ const int MAX_PATH = 1023;
         Utility
  **********************/
 void
-strToLower(char *str) {
-  for( int i = 0; str[i]; i++) {
+strToLower(char *str) 
+{
+  for( int i = 0; str[i]; i++) 
+  {
     str[i] = tolower(str[i]);
   }
 }
@@ -59,6 +61,15 @@ copy(const char * f1,const char * f2)
    }
    fclose(toRead);
    fclose(toWrite);
+}
+
+char*
+append(char *st1, char *st2)
+{
+  int l1 = strlen(st1);
+  int l2 = strlen(st2);
+  char new[l1 + l2];
+  strncat( strncpy( new, l1 ), l2 );
 }
 
 /***********************
@@ -94,8 +105,8 @@ setup_home()
 int
 list_groups() 
 {
-  //*char myhome = 
-  //  FILE *fp = fopen(
+  FILE *fp = fopen( getenv("MY_HOME") );
+  while(
 }
 
 int 
