@@ -66,8 +66,12 @@ print_help()
 int
 setup_folders()
 {
-  *char home = secure_getenv("HOME");
-  return mkdir("%s/.my", home);
+  *char myhome = secure_getenv("MY_HOME");
+  if (myhome != NULL) {
+    myhome = secure_getenv("HOME") + "/.my";
+    setenv("MY_HOME", myhome);
+  }
+  return mkdir(myhome);
 }
 
 int
