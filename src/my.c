@@ -3,7 +3,7 @@
 
  Compile w/ C99 minimum
 
- my is a tool for storing a number of small items (directory templates, shell commmands, notes, etc.),
+  my is a tool for storing a number of small items (directory templates, shell commmands, notes, etc.),
  then recalling them by name. It also allows the grouping of these items, to allow naming overlaps
 */
 
@@ -68,11 +68,11 @@ fCopy(const char * f1,const char * f2)
    fclose(toWrite);
 }
 
-dirent *
-nextfile(char* filename, int size_filename, DIR* dirp)
-{
-  return (*filename = (char*) readdir(dirp)) != NULL;
-}
+//dirent *
+//nextfile(char* filename, int size_filename, DIR* dirp)
+//{
+//  return (*filename = (char*) readdir(dirp)) != NULL;
+//}
 
 /***********************
         Meta
@@ -190,54 +190,75 @@ create_note(const char * group, const char * name, const  char * content)
   int namelen = strlen(name);
   int grouplen = strlen(group);
 
-  char filename[ 2 + namelen];
-  char listpath [ homelen+ grouplen+ 6];
-  char grouppath[ 5+ grouplen + namelen];
-  char fullgrouppath[2+ grouplen + homelen];
-  char fullpath[homelen+grouplen+namelen+5];
+  char filename[ namelen + 2];
+  memset( filename, 0, (namelen + 2) * sizeof(char) );
+  strcat( filename, "N.");
+  strcat( filename, name);
 
-   
-strcpy( fullpath, myhome );
-strcat( fullpath, "/");
-strcat( fullpath, group);
-strcat( fullpath, "/");
-strcpy( fullgrouppath, fullpath);
-strcat( filename,"N.");
-strcat( filename,name);
-strcat( fullpath,filename);
+  //printf( "filename: %s\n", filename );
+
+  //char grouppath[ grouplen + namelen + 5];
+
+  char fullgrouppath[ grouplen + homelen + 2];
+  memset( fullgrouppath, 0, (grouplen + homelen + 2) * sizeof(char) );
+  strcpy( fullgrouppath, myhome );
+  strcat( fullgrouppath, "/");
+  strcat( fullgrouppath, group);
+
+  char fullpath[ homelen + grouplen + namelen + 5 ];
+  memset( fullpath, 0, (homelen + grouplen + namelen + 5) * sizeof(char) );
+  strcpy( fullpath, fullgrouppath);
+  strcat( fullpath, "/");
+  strcat( fullpath, filename);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, fullgrouppath);
+  strcat( listpath, "/.list");
   
-strcpy(listpath, myhome);
-strcat(listpath, "/");
-strcat(listpath, group);
-strcat(listpath, "/list");
- 
-  puts(filename);
-  puts(fullpath);
+
+  //printf( "fullgrouppath: %s\n", fullgrouppath );
+  //printf( "fullpath: %s\n", fullpath );
+  //printf( "listpath: %s\n", listpath );
+  
   FILE *test = fopen(fullpath,"r");
-  if( test == NULL)
+
+  struct stat sb;
+  if( stat(fullpath, &sb) == 0)
   {
-    
+    //printf("File name: %s\n", fullpath);
+    //printf("File status: %i\n", S_ISREG(sb.st_mode) );
+    puts("File already exists");
+    fclose(test);
+    return -1;
+  }
+  else 
+  {
     FILE *list = fopen(listpath, "a");
     FILE *fp = fopen(fullpath, "a" );
     if (NULL != fp) 
     {
       fputs( content, fp );
-      fputs( filename,list);
+      fputs( "\n", fp );
       fflush( fp );
-      fflush( list);
       fclose( fp );
-      fclose( list);
+
+      if( list != NULL )
+      {
+	fputs( filename, list);
+	fputs( "\n", list );
+	fflush( list);
+	fclose( list);
+      }
+      else 
+      {
+	return -1;
+      }
     }
     else 
     {
       return -1;
     }
-  }
-  else 
-  {
-    puts("File already exists");
-    fclose(test);
-    return -1;
   }
 }
 
@@ -331,7 +352,7 @@ main(int argc, char *argv[])
   setup_home();
   list_groups();
   create_group("test");
-  create_note("test","testicles","semen");
+  create_note("test","adam","semen");
   return 0;
 }
 
