@@ -51,6 +51,7 @@ nextline(char *in, int in_size, FILE *from)
 int
 fCopy(const char * f1,const char * f2)
 {
+  printf("Copying '%s' to '%s'\n", f1, f2);
    FILE * toRead;
    FILE * toWrite;
    long lSize;
@@ -885,7 +886,7 @@ create_template_from_current(char* group, const char* name) {
 int
 echo_template(const char* name,const char * group)
 {
-   const char* myhome = getenv("MY_HOME");
+  const char* myhome = getenv("MY_HOME");
   int homelen = strlen(myhome);
   int namelen = strlen(name);
   int grouplen = strlen(group);
@@ -951,7 +952,111 @@ echo_template(const char* name,const char * group)
 int
 execute_template(const char* group, const char* name)
 {
- 
+  char* myhome = getenv("MY_HOME");
+
+  int homelen = strlen(myhome);
+  int grouplen = strlen(group);
+  int namelen = strlen(name);
+
+  int grouppath_size = homelen + grouplen + 1;
+  char grouppath[grouppath_size];
+  memset( grouppath, 0, sizeof(char) * grouppath_size );
+  strcpy( grouppath, myhome );
+  strcat( grouppath, "/" );
+  strcat( grouppath, group );
+
+  int labelpath_size =  grouppath_size + namelen + 3;
+  char labelpath[labelpath_size];
+  memset( labelpath, 0, sizeof(char) * labelpath_size );
+  strcpy(labelpath, grouppath);
+  strcat(labelpath, "/T.");
+  strcat(labelpath, name);
+
+  int mappath_size =  grouppath_size + namelen + 3;
+  char mappath[mappath_size];
+  memset( mappath, 0, sizeof(char) * mappath_size );
+  strcpy( mappath, grouppath);
+  strcat( mappath, "/Z.");
+  strcat( mappath, name);
+
+
+  FILE * recordp;
+  FILE * mapp;
+
+  if( NULL != (recordp = fopen(labelpath, "r")) )
+  {
+    if( NULL != (mapp = fopen(mappath, "r" )) )
+    {
+      char line[1023];
+      while( nextline(line, 1023, recordp) )
+      {
+	puts(line);
+	if( 'd' == line[0] ) 
+	{
+	  char* path = strrchr( line, '\t');
+	  if( NULL == path) { continue; } 
+	  path = &path[1];
+	  mkdir( path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
+	}
+	else if( 'f' == line[0] )
+	{
+	  char* uuid_key = strrchr( line, '/');
+	  if( NULL == uuid_key) { continue; }
+	  uuid_key = &uuid_key[1];
+
+	  int key_size = strlen(uuid_key);
+	  char key[key_size];
+	  strcpy( key, uuid_key );
+	  uuid_key[0] = '\0';
+	  
+	  char* trgtpath = strrchr( line, '\t' );
+	  if( NULL == trgtpath) { continue; }
+	  trgtpath = &trgtpath[1];
+
+	  //At this point we have 'trgtpath' and 'key'
+	  char* mapline = malloc( sizeof(char) * (255 + 37) );
+	  memset( mapline, 0, sizeof(char) * (255 + 37) );
+
+	  char* filename;
+	  while( nextline( mapline, (255 + 37), mapp ) )
+	  {
+	    char* map_key = mapline;
+	    char* separator = strrchr(mapline, '\t');
+	    separator[0] = '\0';
+	    puts("Seeking file.");
+	    printf("Key 1: %s\n", key);
+	    printf("Key 2: %s\n", map_key);
+	    if (strcmp( key, map_key ) == 0)
+	    {
+	      filename = &separator[1];
+	      printf("Located file: %s\n", filename);
+	      break;
+	    }
+	  }
+	  int trgtpath_size = strlen( trgtpath );
+	  int filename_size = strlen( filename );
+
+	  int frompath_size = labelpath_size + 37 ;
+	  char frompath[frompath_size];
+	  strcpy( frompath, labelpath );
+	  strcat( frompath, "." );
+	  strcat( frompath, key );
+	  
+	  int topath_size = trgtpath_size + filename_size;
+	  char topath[topath_size];
+	  strcpy( topath, trgtpath );
+	  strcat( topath, filename );
+
+	  fCopy( frompath, topath );
+	  free( mapline );
+	}
+      }
+
+      fclose( mapp );
+    }
+
+    fclose( recordp );
+  }
 }
 
 int
@@ -1180,8 +1285,7 @@ main(int argc, char *argv[])
         }
 
      */
-  create_group("test");
-  create_template_from_current("test", "test_temp");
+  execute_template("test", "test_temp");
 
   return 0;
 }
