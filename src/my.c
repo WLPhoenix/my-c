@@ -31,6 +31,20 @@ strToLower(char *str)
 
 
 
+char *Readline(char *in) 
+{ 
+char *cptr;
+if (cptr = fgets(in, MAX_LINE, stdin)) 
+ /* kill preceding whitespace but leave \n so we're guaranteed to have something */
+while(*cptr == ' ' || *cptr == '\t')
+ {
+ cptr++; 
+  return cptr; 
+ } 
+else { return 0; } 
+}
+
+
 void
 fCopy(const char * f1,const char * f2)
 {
@@ -103,11 +117,6 @@ list_groups()
 }
 
 int 
-<<<<<<< HEAD
-create_group(char* name) 
-{
-   
-=======
 create_group(const char* name) 
 { 
   const char* myhome = getenv("MY_HOME");
@@ -142,7 +151,7 @@ create_group(const char* name)
   {
     return -1;
   }
->>>>>>> 109af3123635c577f5d7f7404868053d29f5989c
+
 }
 
 int
