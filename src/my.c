@@ -12,7 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
-
+#include <unistd.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <dirent.h>
@@ -505,19 +505,178 @@ edit_macro(char* name)
 { }
 
 /***********************
-        Main
+        Main 
  **********************/
 int
 main(int argc, char *argv[])
 {
   setup_home();
+  int g = 0;
+  int x = 0;
+  int V = 0;
+  int c = 0;
+  int l = 0;
+  int e = 0;
+  int d = 0;
+  int u = 0;
+  int h = 0;
+  int G = 0;
+  int T = 0;
+  int C = 0;
+  int M = 0;
+  int N = 0;
+  char * group;
+  char * label;
+  char * content;
+  int opt ;
+  while((opt= getopt(argc,argv, "V(verbose)g:x(execute)c(create)l(list)e(echo):d(drop):u(edit):h(help)G(group):T(template):C(command)::M(macro)::N(note)::"))!= -1)
+  {
+    switch(opt)
+    {
+     case 'g':
+          g=1;
+          group = optarg;
+          break;
+     case 'V':
+          V = 1;
+          break;
+     case 'x':
+          x = 1;
+          break;
+     case 'c':
+          c = 1;
+          break; 
+     case 'l':
+          l = 1;
+          break;
+     case 'e':
+          e = 1;
+          label = argv[optind];
+          break;
+     case 'd':
+          d = 1;
+          label = argv[optind];
+          break;
+     case 'u':
+          u = 1;
+          label = argv[optind];
+          break;
+     case 'h':
+          h = 1;
+          break;
+     case 'G':
+          G = 1;
+          label = argv[optind];
+          break;
+     case 'T':
+          T = 1;
+          label = argv[optind];
+          break;
+     case 'C':
+          C = 1;
+          label = argv[optind];
+          content = argv[optind+1];
+          break;
+     case 'N':
+          N = 1;
+          label = argv[optind];
+          content = argv[optind+1];
+          break;       
+     default:
+        puts("test");
+        break;
 
-  create_group("test");
-  create_note("test","adam","semen");
-  create_note("test","beta","piss");
-  create_note("test","gamma","poop");
 
-  list_notes("test");
+    }
+ }
+     if(g == 1)
+     {
+        if(c == 1)
+        {
+           if(G ==1)
+           {
+             create_group(label);
+             //break;
+           }
+           else if(N == 1)
+           {
+              create_note(group, label, content);
+              //break;
+           }
+           
+           else if(C == 1)
+           {
+             create_command(label,group,content);
+             //break;
+           }
+           else if(T == 1)
+           {
+             create_template(group,label);
+             //break;
+           }
+           else
+           {
+              puts("Invalid Command");
+              return -1;
+           }
+        }
+        else if(l == 1)
+        {
+           if(N == 1)
+           {
+              list_notes(group);
+              //break;
+           }
+           else if(G == 1)
+           {
+              list_groups();
+              //break;
+           }
+           else
+           {
+              puts("Invalid Command");
+              return -1;   
+           }
+        }
+        else if(x == 1)
+        {
+           if(C == 1)
+           {
+              execute_command(group,label);
+              //break;
+           }  
+           else if(T == 1)
+           {
+           }
+           else
+           {
+              puts("Invalid Command");
+              return -1;
+           }
+        }
+
+     }
+     else if(c == 1)
+     {
+          if(G == 1)
+          {
+             create_group(label);
+             //break;
+          }
+          else
+          {
+              puts("Invalid Command");
+              return -1;
+          }
+     } 
+   
+ //   puts(argv[1]);
+ //  puts(argv[2]);
+ //   puts(argv[3]);
+ //   puts(argv[4]);
+ //   puts(argv[5]);
+ //   puts(argv[6]);
+    
 
   return 0;
 }
