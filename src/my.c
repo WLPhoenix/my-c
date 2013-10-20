@@ -176,7 +176,36 @@ list_notes(const char * group)
 int 
 create_note(const char * group, const char * name, const  char * content) 
 { 
+  const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+  int grouplen = strlen(group);
+
+  char filename[homelen + namelen + 3 + grouplen];
   
+  strcat( strcat( strcat( strcpy( filename, myhome ), "/"), group), strcat("N.",name));
+  
+
+  puts(filename)
+  File *test = fopen(filename,"r")
+   if( test != NULL)
+  {
+    FILE *fp = fopen(filename, "a" );
+    if (NULL != fp) 
+    {
+      fputs( content, fp );
+      fflush( fp );
+       fclose( fp );
+    }
+    else 
+    {
+      return -1;
+    }
+  }
+  else 
+  {
+    return -1;
+  }
 }
 
 int
@@ -268,8 +297,8 @@ main(int argc, char *argv[])
 {
   setup_home();
   list_groups();
-  create_group("booze");
-  list_groups();
+  create_group("test");
+  create_note()
   return 0;
 }
 
