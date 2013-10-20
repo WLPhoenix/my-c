@@ -300,8 +300,29 @@ edit_note(char* name)
         Commands
  **********************/
 int
-list_commands() 
-{ }
+list_commands(const char * group) 
+{
+const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int grouplen = strlen(group);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, myhome );
+  strcat( listpath, "/");
+  strcat( listpath, group);
+  strcat( listpath, "/.list");
+
+  FILE * fp;
+  if ( fp = fopen(listpath, "r") ) {
+    char line[1023];
+    while( nextline(line, 1023, fp) ) {
+      if ( line[0] == 'C' ) {
+	puts( &line[2] );
+      }
+    }
+  } 
+}
 
 int 
 create_command(const char* name, const char* group, const char* content) 
@@ -460,8 +481,29 @@ edit_command(char* name)
         Templates
  **********************/
 int
-list_templates() 
-{ }
+list_templates(const char * group) 
+{
+const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int grouplen = strlen(group);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, myhome );
+  strcat( listpath, "/");
+  strcat( listpath, group);
+  strcat( listpath, "/.list");
+
+  FILE * fp;
+  if ( fp = fopen(listpath, "r") ) {
+    char line[1023];
+    while( nextline(line, 1023, fp) ) {
+      if ( line[0] == 'T' ) {
+	puts( &line[2] );
+      }
+    }
+  }
+}
 
 int 
 create_template(const char* name, const char * group) 
@@ -627,11 +669,15 @@ main(int argc, char *argv[])
               list_notes(group);
               //break;
            }
-           else if(G == 1)
+           else if(C == 1)
            {
-              list_groups();
+              list_commands(group);
               //break;
            }
+           else if(T == 1)
+           {
+              list_templates(group);
+           } 
            else
            {
               puts("Invalid Command");
