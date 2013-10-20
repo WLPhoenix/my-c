@@ -48,28 +48,35 @@ nextline(char *in, int in_size, FILE *from)
 }
 
 
-void
+int
 fCopy(const char * f1,const char * f2)
 {
    FILE * toRead;
    FILE * toWrite;
-   toRead = fopen(f1, "rb" );
-   toWrite = fopen(f2, "wb" );
-   while(1)
-   {
-    char stream[1];
-    fread(stream,1,1,toRead);
-    if(stream[1] == EOF)
-    {
-      break;
-    }
-    else
-    {
-      fwrite(stream,1,1,toWrite);
-    }
+   long lSize;
+   char * buffer;
+   size_t result;
+
+   toRead = fopen ( f1 , "rb" );
+   if (toRead==NULL) {fputs ("File error",stderr); exit (1);}
+
+   toWrite = fopen( f2, "wb" );
+   if (toWrite==NULL) {fputs ("File error",stderr); exit (1);}
+
+   buffer = (char*) malloc (sizeof(char)*255);
+   if (buffer == NULL) {fputs ("Memory error",stderr); exit (2);}
+
+   while(result != 0) {
+     result = fread (buffer,1,255,toRead);
+     if (result != 255) {fputs ("Reading error",stderr); exit (3);}
+     fputs(buffer, toWrite);
    }
-   fclose(toRead);
-   fclose(toWrite);
+   
+   // terminate
+   fclose (toRead);
+   fclose (toWrite);
+   free (buffer);
+   return 0;
 }
 
 int
@@ -173,9 +180,30 @@ create_group(const char* name)
 }
 
 int
-echo_group(char* name)
+echo_group(char* group)
 { 
-  
+
+const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int grouplen = strlen(group);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, myhome );
+  strcat( listpath, "/");
+  strcat( listpath, group);
+  strcat( listpath, "/.list");
+
+  FILE * fp;
+  if ( fp = fopen(listpath, "r") ) {
+    char line[1023];
+    while( nextline(line, 1023, fp) ) {
+       line[1] = '\t';
+       puts(line);
+      }
+    }
+   
+
 }
 
 int
@@ -298,7 +326,71 @@ create_note(const char * group, const char * name, const  char * content)
 
 int
 echo_note(const char * group, const char* name)
-{ }
+{
+  const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+  int grouplen = strlen(group);
+
+  char filename[ namelen + 2];
+  memset( filename, 0, (namelen + 2) * sizeof(char) );
+  strcat( filename, "N.");
+  strcat( filename, name);
+
+  //printf( "filename: %s\n", filename );
+
+  //char grouppath[ grouplen + namelen + 5];
+
+  char fullgrouppath[ grouplen + homelen + 2];
+  memset( fullgrouppath, 0, (grouplen + homelen + 2) * sizeof(char) );
+  strcpy( fullgrouppath, myhome );
+  strcat( fullgrouppath, "/");
+  strcat( fullgrouppath, group);
+
+  char fullpath[ homelen + grouplen + namelen + 5 ];
+  memset( fullpath, 0, (homelen + grouplen + namelen + 5) * sizeof(char) );
+  strcpy( fullpath, fullgrouppath);
+  strcat( fullpath, "/");
+  strcat( fullpath, filename);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, fullgrouppath);
+  strcat( listpath, "/.list");
+  
+
+  //printf( "fullgrouppath: %s\n", fullgrouppath );
+  //printf( "fullpath: %s\n", fullpath );
+  //printf( "listpath: %s\n", listpath );
+  
+
+
+  struct stat sb;
+  if( stat(fullpath, &sb) == 0)
+  {
+    int c;
+    FILE *fp = fopen(fullpath, "r");
+         if(fp)
+     {
+          while(( c = getc(fp)) != EOF)
+          {
+             putchar(c);
+          }  
+     } 
+     else
+     {
+       puts("Error opening file");
+     }
+  }
+  else 
+  {
+    puts("File does not exist.");
+   
+    return -1;
+  }
+
+  
+}
 
 int
 drop_note(const char * group, const char* name)
@@ -475,8 +567,71 @@ execute_command(const char * group, const char * name)
 }
 
 int
-echo_command(char* name)
-{ }
+echo_command(const char* name, const char * group)
+{
+ const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+  int grouplen = strlen(group);
+
+  char filename[ namelen + 2];
+  memset( filename, 0, (namelen + 2) * sizeof(char) );
+  strcat( filename, "C.");
+  strcat( filename, name);
+
+  //printf( "filename: %s\n", filename );
+
+  //char grouppath[ grouplen + namelen + 5];
+
+  char fullgrouppath[ grouplen + homelen + 2];
+  memset( fullgrouppath, 0, (grouplen + homelen + 2) * sizeof(char) );
+  strcpy( fullgrouppath, myhome );
+  strcat( fullgrouppath, "/");
+  strcat( fullgrouppath, group);
+
+  char fullpath[ homelen + grouplen + namelen + 5 ];
+  memset( fullpath, 0, (homelen + grouplen + namelen + 5) * sizeof(char) );
+  strcpy( fullpath, fullgrouppath);
+  strcat( fullpath, "/");
+  strcat( fullpath, filename);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, fullgrouppath);
+  strcat( listpath, "/.list");
+  
+
+  //printf( "fullgrouppath: %s\n", fullgrouppath );
+  //printf( "fullpath: %s\n", fullpath );
+  //printf( "listpath: %s\n", listpath );
+  
+
+
+  struct stat sb;
+  if( stat(fullpath, &sb) == 0)
+  {
+    int c;
+    FILE *fp = fopen(fullpath, "r");
+         if(fp)
+     {
+          while(( c = getc(fp)) != EOF)
+          {
+             putchar(c);
+          }  
+     } 
+     else
+     {
+       puts("Error opening file");
+     }
+  }
+  else 
+  {
+    puts("File does not exist.");
+   
+    return -1;
+  }
+ 
+}
 
 int
 drop_command(char* name)
@@ -513,7 +668,6 @@ const char* myhome = getenv("MY_HOME");
     }
   }
 }
-
 
 int
 __create_template__(char* labelpath, char* mappath, char* parent, char* filepath)
@@ -552,7 +706,6 @@ __create_template__(char* labelpath, char* mappath, char* parent, char* filepath
 	fprintf( fp, "d\t%s\t%s\n", "|x|", record );
       } 
 
-
       // Since it's a directory, recurse on all files below this
       DIR * dirp;
       int files_size = dirsize(filepath);
@@ -571,8 +724,8 @@ __create_template__(char* labelpath, char* mappath, char* parent, char* filepath
       }
       for( int i = 0; i < files_size; i++ )
       {
-	
 	int newfile_size = strlen( files[i] );
+	// These checks prevent you from infinitely recursing on . and ..
 	if( newfile_size <= 0 ) 
 	{
 	  continue;
@@ -591,6 +744,8 @@ __create_template__(char* labelpath, char* mappath, char* parent, char* filepath
 	    continue;
 	  }
 	}
+
+	//Create the info for the recursive call
 	char newparent[record_size + 1];
 	memset( newparent, 0, sizeof(char) * (record_size + 1) );
 	strcpy( newparent, record );
@@ -606,7 +761,41 @@ __create_template__(char* labelpath, char* mappath, char* parent, char* filepath
     } 
     else if ( S_ISREG(sb.st_mode ) )
     {
+      uuid_t uuid_key;
+      uuid_generate( (unsigned char *) uuid_key);
+      int key_size = 36;
+      char key[key_size];
+      uuid_unparse( uuid_key, key );
 
+      //Append this file to the directory listing
+      //d <permissions> <path>
+      int parent_size = strlen(parent);
+      int record_size = parent_size + key_size;
+      char record[record_size];
+      strcpy( record, parent );
+      strcat( record, key );
+      
+      FILE * fp;
+      if( NULL != (fp = fopen(labelpath, "a")) )
+      {
+	fprintf( fp, "f\t%s\t%s\n", "|x|", record );
+      }
+
+      //Because this is a file, we want to copy it to our directory to be restored later
+      int labelpath_size = strlen(labelpath);
+      char cpytarget[labelpath_size + key_size + 1];
+      strcpy( cpytarget, labelpath );
+      strcat( cpytarget, "." );
+      strcat( cpytarget, key );
+
+      fCopy( filepath, cpytarget );
+      
+      //<uuid> <filename>
+      FILE * mapp;
+      if( NULL != (mapp = fopen(mappath, "a")) )
+      {
+	fprintf( mapp, "%s\t%s\n", key, filename );
+      }
     }
   }
 }
@@ -622,25 +811,30 @@ create_template(char* group, const char* name, char* files[], int files_size)
 
   int grouppath_size = homelen + grouplen + 1;
   char grouppath[grouppath_size];
+  memset( grouppath, 0, sizeof(char) * grouppath_size );
   strcpy( grouppath, myhome );
   strcat( grouppath, "/" );
   strcat( grouppath, group );
 
   int labelpath_size =  grouppath_size + namelen + 3;
   char labelpath[labelpath_size];
+  memset( labelpath, 0, sizeof(char) * labelpath_size );
   strcpy(labelpath, grouppath);
   strcat(labelpath, "/T.");
   strcat(labelpath, name);
 
   int mappath_size =  grouppath_size + namelen + 3;
   char mappath[mappath_size];
-  strcpy(mappath, grouppath);
-  strcat(mappath, "/Z.");
-  strcat(mappath, name);
+  memset( mappath, 0, sizeof(char) * mappath_size );
+  strcpy( mappath, grouppath);
+  strcat( mappath, "/Z.");
+  strcat( mappath, name);
 
-  //puts("About to call __create_template__");
+  puts("About to call __create_template__");
   for( int i = 0; i < files_size; i++ )
   {
+    puts("");
+    puts(files[i]);
     __create_template__(labelpath, mappath, "./", files[i]);
   }
 }
@@ -666,13 +860,13 @@ create_template_from_current(char* group, const char* name) {
 	  //	  puts( "Adding file to list." );
 	  int cwd_size = strlen(cwd);
 	  int fname_size = strlen(file->d_name);
-	  char* path = malloc(sizeof(char) * (cwd_size + fname_size + 1));
-	  memset(path, 0, sizeof(char) * (cwd_size + fname_size + 1));
+	  char* path = malloc(sizeof(char) * (cwd_size + fname_size + 2));
+	  memset(path, 0, sizeof(char) * (cwd_size + fname_size + 2));
 
 	  strcpy( path, cwd );
 	  strcat( path, "/" );
 	  strcat( path, file->d_name );
-
+	  
 	  puts( path );
 
 	  files[i++] = path;
@@ -689,15 +883,75 @@ create_template_from_current(char* group, const char* name) {
 }
 
 int
-echo_template(const char* group, const char* name)
-{ 
+echo_template(const char* name,const char * group)
+{
+   const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+  int grouplen = strlen(group);
 
+  char filename[ namelen + 2];
+  memset( filename, 0, (namelen + 2) * sizeof(char) );
+  strcat( filename, "T.");
+  strcat( filename, name);
+
+  //printf( "filename: %s\n", filename );
+
+  //char grouppath[ grouplen + namelen + 5];
+
+  char fullgrouppath[ grouplen + homelen + 2];
+  memset( fullgrouppath, 0, (grouplen + homelen + 2) * sizeof(char) );
+  strcpy( fullgrouppath, myhome );
+  strcat( fullgrouppath, "/");
+  strcat( fullgrouppath, group);
+
+  char fullpath[ homelen + grouplen + namelen + 5 ];
+  memset( fullpath, 0, (homelen + grouplen + namelen + 5) * sizeof(char) );
+  strcpy( fullpath, fullgrouppath);
+  strcat( fullpath, "/");
+  strcat( fullpath, filename);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, fullgrouppath);
+  strcat( listpath, "/.list");
+  
+
+  //printf( "fullgrouppath: %s\n", fullgrouppath );
+  //printf( "fullpath: %s\n", fullpath );
+  //printf( "listpath: %s\n", listpath );
+  
+
+
+  struct stat sb;
+  if( stat(fullpath, &sb) == 0)
+  {
+    int c;
+    FILE *fp = fopen(fullpath, "r");
+         if(fp)
+     {
+          while(( c = getc(fp)) != EOF)
+          {
+             putchar(c);
+          }  
+     } 
+     else
+     {
+       puts("Error opening file");
+     }
+  }
+  else 
+  {
+    puts("File does not exist.");
+   
+    return -1;
+  }
 }
 
 int
 execute_template(const char* group, const char* name)
-{ 
-
+{
+ 
 }
 
 int
@@ -848,6 +1102,22 @@ main(int argc, char *argv[])
               return -1;
            }
         }
+         
+        if(e == 1)
+        {
+           if(N == 1)
+           {
+              echo_note(group,label);
+           }
+           else if( C == 1)
+           {
+               echo_command(label, group);
+           }
+           else if (T == 1)
+           {
+               echo_template(label, group);
+           }
+        }
         else if(l == 1)
         {
            if(N == 1)
@@ -901,6 +1171,14 @@ main(int argc, char *argv[])
               return -1;
           }
      } 
+     else if(e == 1)
+        {
+           if(G == 1)
+           {
+              echo_group(label);
+           }
+        }
+
      */
   create_group("test");
   create_template_from_current("test", "test_temp");
