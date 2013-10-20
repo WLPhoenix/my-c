@@ -161,9 +161,30 @@ create_group(const char* name)
 }
 
 int
-echo_group(char* name)
+echo_group(char* group)
 { 
-  
+
+const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int grouplen = strlen(group);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, myhome );
+  strcat( listpath, "/");
+  strcat( listpath, group);
+  strcat( listpath, "/.list");
+
+  FILE * fp;
+  if ( fp = fopen(listpath, "r") ) {
+    char line[1023];
+    while( nextline(line, 1023, fp) ) {
+       line[1] = '\t';
+       puts(line);
+      }
+    }
+   
+
 }
 
 int
@@ -286,7 +307,71 @@ create_note(const char * group, const char * name, const  char * content)
 
 int
 echo_note(const char * group, const char* name)
-{ }
+{
+  const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+  int grouplen = strlen(group);
+
+  char filename[ namelen + 2];
+  memset( filename, 0, (namelen + 2) * sizeof(char) );
+  strcat( filename, "N.");
+  strcat( filename, name);
+
+  //printf( "filename: %s\n", filename );
+
+  //char grouppath[ grouplen + namelen + 5];
+
+  char fullgrouppath[ grouplen + homelen + 2];
+  memset( fullgrouppath, 0, (grouplen + homelen + 2) * sizeof(char) );
+  strcpy( fullgrouppath, myhome );
+  strcat( fullgrouppath, "/");
+  strcat( fullgrouppath, group);
+
+  char fullpath[ homelen + grouplen + namelen + 5 ];
+  memset( fullpath, 0, (homelen + grouplen + namelen + 5) * sizeof(char) );
+  strcpy( fullpath, fullgrouppath);
+  strcat( fullpath, "/");
+  strcat( fullpath, filename);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, fullgrouppath);
+  strcat( listpath, "/.list");
+  
+
+  //printf( "fullgrouppath: %s\n", fullgrouppath );
+  //printf( "fullpath: %s\n", fullpath );
+  //printf( "listpath: %s\n", listpath );
+  
+
+
+  struct stat sb;
+  if( stat(fullpath, &sb) == 0)
+  {
+    int c;
+    FILE *fp = fopen(fullpath, "r");
+         if(fp)
+     {
+          while(( c = getc(fp)) != EOF)
+          {
+             putchar(c);
+          }  
+     } 
+     else
+     {
+       puts("Error opening file");
+     }
+  }
+  else 
+  {
+    puts("File does not exist.");
+   
+    return -1;
+  }
+
+  
+}
 
 int
 drop_note(const char * group, const char* name)
@@ -466,8 +551,71 @@ execute_command(const char * group, const char * name)
 }
 
 int
-echo_command(char* name)
-{ }
+echo_command(const char* name, const char * group)
+{
+ const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+  int grouplen = strlen(group);
+
+  char filename[ namelen + 2];
+  memset( filename, 0, (namelen + 2) * sizeof(char) );
+  strcat( filename, "C.");
+  strcat( filename, name);
+
+  //printf( "filename: %s\n", filename );
+
+  //char grouppath[ grouplen + namelen + 5];
+
+  char fullgrouppath[ grouplen + homelen + 2];
+  memset( fullgrouppath, 0, (grouplen + homelen + 2) * sizeof(char) );
+  strcpy( fullgrouppath, myhome );
+  strcat( fullgrouppath, "/");
+  strcat( fullgrouppath, group);
+
+  char fullpath[ homelen + grouplen + namelen + 5 ];
+  memset( fullpath, 0, (homelen + grouplen + namelen + 5) * sizeof(char) );
+  strcpy( fullpath, fullgrouppath);
+  strcat( fullpath, "/");
+  strcat( fullpath, filename);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, fullgrouppath);
+  strcat( listpath, "/.list");
+  
+
+  //printf( "fullgrouppath: %s\n", fullgrouppath );
+  //printf( "fullpath: %s\n", fullpath );
+  //printf( "listpath: %s\n", listpath );
+  
+
+
+  struct stat sb;
+  if( stat(fullpath, &sb) == 0)
+  {
+    int c;
+    FILE *fp = fopen(fullpath, "r");
+         if(fp)
+     {
+          while(( c = getc(fp)) != EOF)
+          {
+             putchar(c);
+          }  
+     } 
+     else
+     {
+       puts("Error opening file");
+     }
+  }
+  else 
+  {
+    puts("File does not exist.");
+   
+    return -1;
+  }
+ 
+}
 
 int
 drop_command(char* name)
@@ -512,8 +660,71 @@ create_template(const char* name, const char * group)
 }
 
 int
-echo_template(char* name)
-{ }
+echo_template(const char* name,const char * group)
+{
+   const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int namelen = strlen(name);
+  int grouplen = strlen(group);
+
+  char filename[ namelen + 2];
+  memset( filename, 0, (namelen + 2) * sizeof(char) );
+  strcat( filename, "T.");
+  strcat( filename, name);
+
+  //printf( "filename: %s\n", filename );
+
+  //char grouppath[ grouplen + namelen + 5];
+
+  char fullgrouppath[ grouplen + homelen + 2];
+  memset( fullgrouppath, 0, (grouplen + homelen + 2) * sizeof(char) );
+  strcpy( fullgrouppath, myhome );
+  strcat( fullgrouppath, "/");
+  strcat( fullgrouppath, group);
+
+  char fullpath[ homelen + grouplen + namelen + 5 ];
+  memset( fullpath, 0, (homelen + grouplen + namelen + 5) * sizeof(char) );
+  strcpy( fullpath, fullgrouppath);
+  strcat( fullpath, "/");
+  strcat( fullpath, filename);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, fullgrouppath);
+  strcat( listpath, "/.list");
+  
+
+  //printf( "fullgrouppath: %s\n", fullgrouppath );
+  //printf( "fullpath: %s\n", fullpath );
+  //printf( "listpath: %s\n", listpath );
+  
+
+
+  struct stat sb;
+  if( stat(fullpath, &sb) == 0)
+  {
+    int c;
+    FILE *fp = fopen(fullpath, "r");
+         if(fp)
+     {
+          while(( c = getc(fp)) != EOF)
+          {
+             putchar(c);
+          }  
+     } 
+     else
+     {
+       puts("Error opening file");
+     }
+  }
+  else 
+  {
+    puts("File does not exist.");
+   
+    return -1;
+  }
+
+}
 
 int
 drop_template(char* name)
@@ -662,6 +873,22 @@ main(int argc, char *argv[])
               return -1;
            }
         }
+         
+        if(e == 1)
+        {
+           if(N == 1)
+           {
+              echo_note(group,label);
+           }
+           else if( C == 1)
+           {
+               echo_command(label, group);
+           }
+           else if (T == 1)
+           {
+               echo_template(label, group);
+           }
+        }
         else if(l == 1)
         {
            if(N == 1)
@@ -715,6 +942,13 @@ main(int argc, char *argv[])
               return -1;
           }
      } 
+     else if(e == 1)
+        {
+           if(G == 1)
+           {
+              echo_group(label);
+           }
+        }
    
  //   puts(argv[1]);
  //  puts(argv[2]);
