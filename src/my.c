@@ -465,7 +465,9 @@ list_templates()
 
 int 
 create_template(const char* name, const char * group) 
-{ }
+{
+  
+}
 
 int
 echo_template(char* name)
@@ -509,29 +511,14 @@ int
 main(int argc, char *argv[])
 {
   setup_home();
-<<<<<<< HEAD
-  DIR *dp;
-  struct dirent *ep;     
-  dp = opendir ("./");
 
-  if (dp != NULL)
-  {
-    while (ep = readdir (dp))
-      if(ep->d_name != ".." || ep -> d_name != ".")
-      puts (ep->d_name);
-
-    (void) closedir (dp);
-  }
-  else
-    perror ("Couldn't open the directory");
-=======
   create_group("test");
   create_note("test","adam","semen");
   create_note("test","beta","piss");
   create_note("test","gamma","poop");
 
   list_notes("test");
->>>>>>> 0117ee338d93b987ef1b17795407647f1c864a99
+
   return 0;
 }
 
