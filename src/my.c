@@ -31,18 +31,18 @@ strToLower(char *str)
 
 
 
-char *Readline(char *in) 
-{ 
-char *cptr;
-if (cptr = fgets(in, MAX_LINE, stdin)) 
+//char *Readline(char *in) 
+//{ 
+//char *cptr;
+//if (cptr = fgets(in, MAX_LINE, stdin)) 
  /* kill preceding whitespace but leave \n so we're guaranteed to have something */
-while(*cptr == ' ' || *cptr == '\t')
- {
- cptr++; 
-  return cptr; 
- } 
-else { return 0; } 
-}
+//while(*cptr == ' ' || *cptr == '\t')
+// {
+// cptr++; 
+//  return cptr; 
+// } 
+//else { return 0; } 
+//}
 
 
 void
@@ -171,7 +171,9 @@ edit_group(char* name)
  **********************/
 int
 list_notes(const char * group) 
-{ }
+{
+   
+}
 
 int 
 create_note(const char * group, const char * name, const  char * content) 
@@ -181,21 +183,43 @@ create_note(const char * group, const char * name, const  char * content)
   int namelen = strlen(name);
   int grouplen = strlen(group);
 
-  char filename[homelen + namelen + 3 + grouplen];
-  
-  strcat( strcat( strcat( strcpy( filename, myhome ), "/"), group), strcat("N.",name));
-  
+  char filename[ 2 + namelen];
+  char listpath [ homelen+ grouplen+ 6];
+  char grouppath[ 5+ grouplen + namelen];
+  char fullgrouppath[2+ grouplen + homelen];
+  char fullpath[homelen+grouplen+namelen+5];
 
-  puts(filename)
-  File *test = fopen(filename,"r")
-   if( test != NULL)
+   
+strcpy( fullpath, myhome );
+strcat( fullpath, "/");
+strcat( fullpath, group);
+strcat( fullpath, "/");
+strcpy( fullgrouppath, fullpath);
+strcat( filename,"N.");
+strcat( filename,name);
+strcat( fullpath,filename);
+  
+strcpy(listpath, myhome);
+strcat(listpath, "/");
+strcat(listpath, group);
+strcat(listpath, "/list");
+ 
+  puts(filename);
+  puts(fullpath);
+  FILE *test = fopen(fullpath,"r");
+  if( test == NULL)
   {
-    FILE *fp = fopen(filename, "a" );
+    
+    FILE *list = fopen(listpath, "a");
+    FILE *fp = fopen(fullpath, "a" );
     if (NULL != fp) 
     {
       fputs( content, fp );
+      fputs( filename,list);
       fflush( fp );
-       fclose( fp );
+      fflush( list);
+      fclose( fp );
+      fclose( list);
     }
     else 
     {
@@ -204,6 +228,8 @@ create_note(const char * group, const char * name, const  char * content)
   }
   else 
   {
+    puts("File already exists");
+    fclose(test);
     return -1;
   }
 }
@@ -298,7 +324,7 @@ main(int argc, char *argv[])
   setup_home();
   list_groups();
   create_group("test");
-  create_note()
+  create_note("test","testicles","semen");
   return 0;
 }
 
