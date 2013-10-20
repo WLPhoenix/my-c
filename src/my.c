@@ -17,6 +17,9 @@
 #include <errno.h>
 #include <dirent.h>
 
+#include <unistd.h>
+#include <uuid/uuid.h>
+
 const int MAX_PATH = 1023;
 
 /***********************
@@ -69,11 +72,20 @@ fCopy(const char * f1,const char * f2)
    fclose(toWrite);
 }
 
-//dirent *
-//nextfile(char* filename, int size_filename, DIR* dirp)
-//{
-//  return (*filename = (char*) readdir(dirp)) != NULL;
-//}
+int
+dirsize(char* dirname)
+{
+  DIR * dirp;
+  if( NULL != (dirp = opendir(dirname)) ) {
+    struct dirent * file;	
+    int filecount = 0;
+    while( NULL != (file = readdir(dirp)) ) {
+      ++filecount;
+    }
+    return filecount;
+    closedir(dirp);
+  }
+}
 
 /***********************
         Meta
@@ -407,7 +419,7 @@ create_command(const char* name, const char* group, const char* content)
 int
 execute_command(const char * group, const char * name)
 {
-    const char* myhome = getenv("MY_HOME");
+  const char* myhome = getenv("MY_HOME");
   int homelen = strlen(myhome);
   int namelen = strlen(name);
   int grouplen = strlen(group);
@@ -459,10 +471,7 @@ execute_command(const char * group, const char * name)
           }  
      } 
      return 0;
-  }
-  
-  
-  
+  }  
 }
 
 int
@@ -505,15 +514,191 @@ const char* myhome = getenv("MY_HOME");
   }
 }
 
-int 
-create_template(const char* name, const char * group) 
+
+int
+__create_template__(char* labelpath, char* mappath, char* parent, char* filepath)
 {
-  
+  puts( "__create_template__" );
+  printf( "labelpath: %s\n", labelpath );
+  printf( "mappath: %s\n", mappath );
+  printf( "parent: %s\n", parent );
+  printf( "filepath: %s\n", filepath );
+
+  char* filename = strrchr( filepath, '/' );
+  if(NULL == filename)
+  {
+    return -1;
+  };
+  filename = &filename[1];
+  printf( "filename: %s\n", filename);
+
+  struct stat sb;
+  if( stat(filepath, &sb) == 0 )
+  {
+    if( S_ISDIR(sb.st_mode) ) 
+    {
+      //Append this file to the directory listing
+      //d <permissions> <path>
+      int parent_size = strlen(parent);
+      int filename_size = strlen(filename);
+      int record_size = parent_size + filename_size;
+      char record[record_size];
+      strcpy( record, parent );
+      strcat( record, filename );
+
+      FILE * fp;
+      if( NULL != (fp = fopen(labelpath, "a")) )
+      {
+	fprintf( fp, "d\t%s\t%s\n", "|x|", record );
+      } 
+
+
+      // Since it's a directory, recurse on all files below this
+      DIR * dirp;
+      int files_size = dirsize(filepath);
+      char* files[files_size];
+      
+      if ( NULL != (dirp = opendir(filepath)) ) 
+      {
+	struct dirent * file;
+	int i = 0;
+	
+	while( NULL != (file = readdir(dirp)) ) 
+	{
+	  files[i++] = file->d_name;
+	}
+	closedir(dirp);
+      }
+      for( int i = 0; i < files_size; i++ )
+      {
+	
+	int newfile_size = strlen( files[i] );
+	if( newfile_size <= 0 ) 
+	{
+	  continue;
+	}
+	else if( newfile_size == 1 ) 
+	{
+	  if ( files[i][0] == '.' )
+	  {
+	    continue;
+	  }
+	} 
+	else if ( newfile_size == 2 ) 
+	{
+	  if ( files[i][0] == '.' && files[i][1] == '.' )
+	  {
+	    continue;
+	  }
+	}
+	char newparent[record_size + 1];
+	memset( newparent, 0, sizeof(char) * (record_size + 1) );
+	strcpy( newparent, record );
+	strcat( newparent, "/" );
+
+	char newfile[record_size + newfile_size + 1];
+	memset( newfile, 0, sizeof(char) * (record_size + newfile_size + 1) );
+	strcpy( newfile, newparent );
+	strcat( newfile, files[i] );
+
+	__create_template__(labelpath, mappath, newparent, newfile);
+      }
+    } 
+    else if ( S_ISREG(sb.st_mode ) )
+    {
+
+    }
+  }
+}
+
+int 
+create_template(char* group, const char* name, char* files[], int files_size) 
+{
+  char* myhome = getenv("MY_HOME");
+
+  int homelen = strlen(myhome);
+  int grouplen = strlen(group);
+  int namelen = strlen(name);
+
+  int grouppath_size = homelen + grouplen + 1;
+  char grouppath[grouppath_size];
+  strcpy( grouppath, myhome );
+  strcat( grouppath, "/" );
+  strcat( grouppath, group );
+
+  int labelpath_size =  grouppath_size + namelen + 3;
+  char labelpath[labelpath_size];
+  strcpy(labelpath, grouppath);
+  strcat(labelpath, "/T.");
+  strcat(labelpath, name);
+
+  int mappath_size =  grouppath_size + namelen + 3;
+  char mappath[mappath_size];
+  strcpy(mappath, grouppath);
+  strcat(mappath, "/Z.");
+  strcat(mappath, name);
+
+  //puts("About to call __create_template__");
+  for( int i = 0; i < files_size; i++ )
+  {
+    __create_template__(labelpath, mappath, "./", files[i]);
+  }
 }
 
 int
-echo_template(char* name)
-{ }
+create_template_from_current(char* group, const char* name) {
+  char cwd[1023];
+  if( NULL != getcwd(cwd, 1023) ) {
+    
+    DIR * dirp;
+    int files_size = dirsize(cwd) - 2;
+    char* files[files_size];
+    
+    if ( NULL != (dirp = opendir(cwd)) ) {
+      struct dirent * file;
+      int i = 0;
+	
+      while( NULL != (file = readdir(dirp)) ) 
+      {
+	//	puts( file->d_name );
+	if ( (strcmp( ".", file->d_name ) != 0) && (strcmp ( "..", file->d_name ) != 0) )
+	{
+	  //	  puts( "Adding file to list." );
+	  int cwd_size = strlen(cwd);
+	  int fname_size = strlen(file->d_name);
+	  char* path = malloc(sizeof(char) * (cwd_size + fname_size + 1));
+	  memset(path, 0, sizeof(char) * (cwd_size + fname_size + 1));
+
+	  strcpy( path, cwd );
+	  strcat( path, "/" );
+	  strcat( path, file->d_name );
+
+	  puts( path );
+
+	  files[i++] = path;
+	}
+      }
+      closedir(dirp);
+    }
+    int out = create_template(group, name, files, files_size);
+    for (int j = 0; j < files_size; j++) 
+    {
+      free(files[j]);
+    }
+  }
+}
+
+int
+echo_template(const char* group, const char* name)
+{ 
+
+}
+
+int
+execute_template(const char* group, const char* name)
+{ 
+
+}
 
 int
 drop_template(char* name)
@@ -553,6 +738,7 @@ int
 main(int argc, char *argv[])
 {
   setup_home();
+  /*
   int g = 0;
   int x = 0;
   int V = 0;
@@ -715,14 +901,9 @@ main(int argc, char *argv[])
               return -1;
           }
      } 
-   
- //   puts(argv[1]);
- //  puts(argv[2]);
- //   puts(argv[3]);
- //   puts(argv[4]);
- //   puts(argv[5]);
- //   puts(argv[6]);
-    
+     */
+  create_group("test");
+  create_template_from_current("test", "test_temp");
 
   return 0;
 }
