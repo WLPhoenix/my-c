@@ -161,7 +161,9 @@ create_group(const char* name)
 
 int
 echo_group(char* name)
-{ }
+{ 
+  
+}
 
 int
 drop_group(char* name)
@@ -179,7 +181,26 @@ edit_group(char* name)
 int
 list_notes(const char * group) 
 {
-   
+  const char* myhome = getenv("MY_HOME");
+  int homelen = strlen(myhome);
+  int grouplen = strlen(group);
+
+  char listpath [ homelen + grouplen + 7 ];
+  memset( listpath, 0, (homelen + grouplen + 6) * sizeof(char) );
+  strcpy( listpath, myhome );
+  strcat( listpath, "/");
+  strcat( listpath, group);
+  strcat( listpath, "/.list");
+
+  FILE * fp;
+  if ( fp = fopen(listpath, "r") ) {
+    char line[1023];
+    while( nextline(line, 1023, fp) ) {
+      if ( line[0] == 'N' ) {
+	puts( &line[2] );
+      }
+    }
+  }
 }
 
 int 
@@ -350,9 +371,12 @@ int
 main(int argc, char *argv[])
 {
   setup_home();
-  list_groups();
   create_group("test");
   create_note("test","adam","semen");
+  create_note("test","beta","piss");
+  create_note("test","gamma","poop");
+
+  list_notes("test");
   return 0;
 }
 
