@@ -120,19 +120,27 @@ create_group(const char* name)
   strcat( strcat( strcpy( filename, myhome ), "/"), name  );
   strcat( strcpy( groupfile, myhome ), "/groups" );
 
-  puts(filename);
-  puts(groupfile);
-
-  FILE *fp = fopen( filename, "a" );
-  if (NULL != fp) {
-    fputs( name, fp );
-    fflush( fp );
-  }
-  fclose( fp );
-
-  if( mkdir( filename, S_IRWXU ) == -1 )
+  if( mkdir( filename, S_IRWXU ) == 0)
   {
-    return errno==EEXIST;
+    FILE *fp = fopen( groupfile, "a" );
+    if (NULL != fp) {
+      fputs( name, fp );
+      fputs( "\n", fp );
+      fflush( fp );
+      fclose( fp );
+    }
+    else 
+    {
+      return -1;
+    }
+  }
+  else if (errno == EEXIST) 
+  {
+    printf("Group '%s' already exists.\n", name);
+  } 
+  else 
+  {
+    return -1;
   }
 >>>>>>> 109af3123635c577f5d7f7404868053d29f5989c
 }
