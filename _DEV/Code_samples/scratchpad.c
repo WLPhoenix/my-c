@@ -1,36 +1,34 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
-char*
-strAppend(const char *st1, int lmax1, const char *st2, int lmax2)
-{
-  int len1 = strlen(st1);
-  int len2 = strlen(st2);
-  len1 = (len1 < lmax1) ? len1 : lmax1;
-  len2 = (len2 < lmax2) ? len2 : lmax2;
+#include <sys/stat.h>
+#include <errno.h>
 
-  printf("len1: %i\n", len1);
-  printf("len2: %i\n", len2);
-  
-  char* new;
-  new = (char*) malloc( len1 + len2 + 1 );
-  strcpy( new, st1 );
-  strcat( new, st2 );
-  strcat( new, "\0");
-  return new;
+const int MAX_LINE = 1023;
+
+int
+readline(char *in, int in_size, FILE *from) 
+{  
+  char *cptr;
+  memset(in, 0, in_size * sizeof(char));
+  int cond = (fgets(in, in_size, from)) != NULL;
+  if (cond) {
+    char* tmp = strchr( in, '\n' );
+    tmp[0] = '\0';
+  }
+  return cond;
 }
 
 int
 main(void)
 {
-  
-  char* st1 = "abcd";
-  char* st2 = "zyxw";  
-  printf("%s\n", st1);
-  printf("%s\n", st2);
-  
-  char* st3 = strAppend(st1, 100, st2, 100);
-  printf("%s\n", st3);
-  free(st3);
+  FILE* fp;
+  if ((fp = fopen( "/Users/CH/tappant/404.html", "r" )) != NULL) {
+    char in[MAX_LINE];
+    while (readline(in, MAX_LINE, fp)) {
+      puts(in);
+    }
+  }
 }

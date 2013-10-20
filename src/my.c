@@ -14,6 +14,7 @@
 
 #include <sys/stat.h>
 #include <errno.h>
+#include <dirent.h>
 
 const int MAX_PATH = 1023;
 
@@ -29,20 +30,18 @@ strToLower(char *str)
   }
 }
 
-
-
-//char *Readline(char *in) 
-//{ 
-//char *cptr;
-//if (cptr = fgets(in, MAX_LINE, stdin)) 
- /* kill preceding whitespace but leave \n so we're guaranteed to have something */
-//while(*cptr == ' ' || *cptr == '\t')
-// {
-// cptr++; 
-//  return cptr; 
-// } 
-//else { return 0; } 
-//}
+int
+nextline(char *in, int in_size, FILE *from) 
+{  
+  char *cptr;
+  memset(in, 0, in_size * sizeof(char));
+  int cond = (fgets(in, in_size, from)) != NULL;
+  if (cond) {
+    char* tmp = strchr( in, '\n' );
+    tmp[0] = '\0';
+  }
+  return cond;
+}
 
 
 void
@@ -67,6 +66,12 @@ fCopy(const char * f1,const char * f2)
    }
    fclose(toRead);
    fclose(toWrite);
+}
+
+dirent *
+nextfile(char* filename, int size_filename, DIR* dirp)
+{
+  return (*filename = (char*) readdir(dirp)) != NULL;
 }
 
 /***********************
@@ -160,7 +165,9 @@ echo_group(char* name)
 
 int
 drop_group(char* name)
-{ }
+{ 
+  
+}
 
 int
 edit_group(char* name)
