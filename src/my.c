@@ -69,7 +69,7 @@ fCopy(const char * f1,const char * f2)
 
    while(result != 0) {
      result = fread (buffer,1,255,toRead);
-     if (result != 255) {fputs ("Reading error",stderr); exit (3);}
+    // if (result != 255) {fputs ("Reading error",stderr); exit (3);}
      fputs(buffer, toWrite);
    }
    
@@ -1097,7 +1097,7 @@ int
 main(int argc, char *argv[])
 {
   setup_home();
-  /*
+  
   int g = 0;
   int x = 0;
   int V = 0;
@@ -1198,7 +1198,7 @@ main(int argc, char *argv[])
            }
            else if(T == 1)
            {
-             create_template(group,label);
+             create_template_from_current(group,label);
              //break;
            }
            else
@@ -1254,6 +1254,7 @@ main(int argc, char *argv[])
            }  
            else if(T == 1)
            {
+ 	     execute_template(group,label);
            }
            else
            {
@@ -1284,8 +1285,8 @@ main(int argc, char *argv[])
            }
         }
 
-     */
-  execute_template("test", "test_temp");
+     
+ 
 
   return 0;
 }
